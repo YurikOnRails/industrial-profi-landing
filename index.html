@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndustrialPROFI — Карьерный навигатор и Матрицы компетенций</title>
+    <meta name="description"
+        content="Карта профессий для инженеров АСУ ТП, КИПиА и пищевых производств. Узнай, что учить для повышения разряда.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0f172a', // Slate 900
+                            primary: '#1e3a8a', // Blue 900 (Corporate Blue)
+                            secondary: '#3b82f6', // Blue 500
+                            accent: '#f59e0b', // Amber 500
+                            gray: '#f1f5f9' // Slate 100
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card': '0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+        }
+
+        .grid-bg {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .animate-float {
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* Roadmap Specific Styles */
+        .roadmap-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .roadmap-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Metro Line Logic - Mobile Optimized */
+        .metro-line {
+            position: relative;
+        }
+
+        .metro-line::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            bottom: -40px;
+            left: 31px;
+            /* Desktop: Aligns with sm:left-4 (16px) + margin/padding adjustments */
+            width: 2px;
+            background-image: linear-gradient(to bottom, #cbd5e1 50%, transparent 50%);
+            background-size: 2px 10px;
+            z-index: 0;
+        }
+
+        @media (max-width: 640px) {
+            .metro-line::before {
+                /* Mobile: Circle is at left-0 (0px). Width 32px. Center is 16px. Line width 2px. Left should be 15px. */
+                left: 15px;
+            }
+        }
+
+        .last-item::before {
+            display: none;
+        }
+
+        /* Hide Scrollbar for tabs but allow scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="font-sans text-slate-700 antialiased">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="bg-brand-primary text-white p-1.5 rounded flex items-center justify-center">
+                        <i class="fa-solid fa-microchip text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold text-slate-900 tracking-tight">Industrial<span
+                            class="text-brand-primary">PROFI</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                    <a href="#roadmap" class="hover:text-brand-primary transition font-bold text-brand-primary">Карта
+                        профессий</a>
+                    <a href="#problem" class="hover:text-brand-primary transition">Бизнесу</a>
+                    <a href="#audience" class="hover:text-brand-primary transition">Инженерам</a>
+                </div>
+
+                <!-- Desktop CTA -->
+                <div class="hidden md:block">
+                    <button onclick="scrollToForm()"
+                        class="bg-brand-primary hover:bg-blue-800 text-white px-5 py-2.5 rounded-md font-medium text-sm transition shadow-sm">
+                        Войти в систему
+                    </button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-slate-600 focus:outline-none p-2">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden pt-4 pb-2 border-t border-slate-100 mt-2 animate-fade-in">
+                <a href="#roadmap" onclick="toggleMobileMenu()"
+                    class="block py-3 text-brand-primary font-bold border-b border-slate-50">Карта профессий</a>
+                <a href="#problem" onclick="toggleMobileMenu()"
+                    class="block py-3 text-slate-600 border-b border-slate-50">Бизнесу</a>
+                <a href="#audience" onclick="toggleMobileMenu()"
+                    class="block py-3 text-slate-600 border-b border-slate-50">Инженерам</a>
+                <button onclick="toggleMobileMenu(); scrollToForm()"
+                    class="w-full mt-4 bg-brand-primary text-white py-3 rounded-md font-medium">
+                    Войти в систему
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-bg min-h-[85vh] flex items-center pt-28 pb-12 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg"></div>
+
+        <div class="container mx-auto px-6 relative z-20 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <!-- Text Content -->
+            <div class="text-white space-y-6 lg:space-y-8">
+                <div
+                    class="inline-flex items-center bg-white/10 backdrop-blur-sm rounded-md px-3 py-1.5 border border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-100">Карьерный навигатор
+                        2.0</span>
+                </div>
+
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight tracking-tight">
+                    От слесаря до <br />
+                    <span class="text-blue-200">архитектора АСУ ТП</span>
+                </h1>
+
+                <p class="text-base md:text-lg text-slate-300 max-w-xl leading-relaxed font-light">
+                    Первая открытая карта промышленных профессий. Узнай, какие навыки нужны для повышения разряда, и
+                    подтверди их в едином цифровом паспорте.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#roadmap"
+                        class="bg-white text-brand-primary font-bold px-6 py-3 rounded-md transition hover:bg-slate-100 flex items-center justify-center shadow-lg text-center">
+                        Смотреть карту <i class="fa-solid fa-map ml-2 text-xs"></i>
+                    </a>
+                    <button onclick="scrollToForm()"
+                        class="bg-brand-primary border border-white/20 hover:bg-blue-800 text-white font-semibold px-6 py-3 rounded-md transition flex items-center justify-center text-center">
+                        Для руководителей
+                    </button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-xs text-slate-400 pt-2">
+                    <span class="flex items-center"><i class="fa-solid fa-users mr-2 text-blue-400"></i> 1,200+
+                        Профессий</span>
+                    <span class="flex items-center"><i class="fa-solid fa-sync mr-2 text-blue-400"></i> Ежемесячные
+                        обновления</span>
+                </div>
+            </div>
+
+            <!-- Visual Mockup (Hidden on mobile to save space, visible on large) -->
+            <div class="relative hidden lg:block animate-float">
+                <div class="bg-slate-900 rounded-lg shadow-2xl overflow-hidden border border-slate-700">
+                    <!-- Header -->
+                    <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div class="ml-4 text-xs font-mono text-slate-400">user: engineer_alex | level: senior</div>
+                    </div>
+                    <!-- Body -->
+                    <div class="p-6 relative h-80 bg-slate-900 flex items-center justify-center">
+                        <div class="absolute w-1 h-40 bg-slate-700"></div>
+                        <div class="absolute w-40 h-1 bg-slate-700"></div>
+
+                        <div class="z-10 bg-blue-600 text-white p-4 rounded shadow-lg border border-blue-400">
+                            <div class="text-xs font-bold opacity-70">Текущий уровень</div>
+                            <div class="text-lg font-bold"><i class="fa-solid fa-laptop-code mr-2"></i>ПЛК Siemens</div>
+                        </div>
+
+                        <div
+                            class="absolute top-10 right-10 z-10 bg-slate-800 text-slate-400 p-3 rounded border border-slate-600 opacity-60">
+                            <div class="text-xs">Цель 2026</div>
+                            <div class="font-bold">Архитектор MES</div>
+                        </div>
+
+                        <div
+                            class="absolute bottom-10 left-10 z-10 bg-green-900/50 text-green-400 p-3 rounded border border-green-700">
+                            <div class="text-xs"><i class="fa-solid fa-check mr-1"></i> Сдано</div>
+                            <div class="font-bold">Электробезопасность</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Roadmap Section -->
+    <section id="roadmap" class="py-16 md:py-20 bg-white">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div class="text-center mb-12 md:mb-16">
+                <div
+                    class="inline-flex items-center bg-indigo-50 px-3 py-1 rounded-full text-indigo-700 text-xs font-bold mb-4 border border-indigo-100">
+                    <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-ping"></span>
+                    Обновлено: Январь 2026
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Универсальная карта профессий
+                </h2>
+                <p class="text-slate-500 mt-4 max-w-2xl mx-auto text-sm md:text-base">
+                    Мы регулярно добавляем новые специальности. Выберите свой трек развития: от базовых навыков до
+                    IT-архитектуры.
+                </p>
+            </div>
+
+            <!-- Roadmap Container -->
+            <!-- Mobile: pl-4 to allow circle on left. Desktop: pl-0 -->
+            <div class="space-y-12 pl-2 sm:pl-0">
+
+                <!-- Секция 0: БАЗА -->
+                <div class="relative metro-line pl-10 sm:pl-12">
+                    <!-- Circle & Title -->
+                    <div class="absolute left-0 sm:left-4 flex items-center gap-3 mb-6 -ml-0 sm:-ml-0 top-0">
+                        <span
+                            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 border-2 border-slate-200 text-slate-600 font-bold text-sm bg-white">00</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-900 sm:hidden block pt-1">БАЗА</h3>
+                        <!-- Mobile Title inline -->
+                    </div>
+                    <!-- Desktop Title (Hidden on mobile to use inline alignment) -->
+                    <div class="hidden sm:flex items-center gap-3 mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">БАЗА</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-10 sm:pt-0">
+                        <!-- Engineering Core Card -->
+                        <a href="#contact" onclick="selectInterest('Base Core')"
+                            class="lg:col-span-2 roadmap-card group relative flex flex-col sm:flex-row items-center gap-6 bg-brand-primary rounded-xl p-6 md:p-8 border border-blue-900 hover:border-blue-500 overflow-hidden cursor-pointer">
+                            <div
+                                class="absolute right-0 top-0 h-full w-1/3 bg-white/5 skew-x-12 translate-x-12 group-hover:translate-x-8 transition-transform duration-500">
+                            </div>
+
+                            <div
+                                class="flex-shrink-0 w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-lg flex items-center justify-center border border-white/10 text-white relative z-10">
+                                <i class="fa-solid fa-book-open text-2xl md:text-3xl"></i>
+                            </div>
+
+                            <div class="relative z-10 flex-1 text-center sm:text-left">
+                                <div
+                                    class="flex flex-col sm:flex-row items-center gap-3 mb-2 justify-center sm:justify-start">
+                                    <h3
+                                        class="text-lg md:text-xl font-bold text-white group-hover:text-blue-200 transition-colors">
+                                        Инженерное Ядро</h3>
+                                    <span
+                                        class="inline-flex items-center rounded bg-blue-500/20 px-2 py-1 text-xs font-medium text-blue-200 ring-1 ring-inset ring-blue-500/30">MANDATORY</span>
+                                </div>
+                                <p class="text-slate-300 text-sm leading-relaxed">
+                                    Единая база для всех: электротехника (Закон Ома), чтение схем, ТБ и механика. <span
+                                        class="text-blue-200 font-semibold">Без этого модуля доступ к профессиям
+                                        закрыт.</span>
+                                </p>
+                            </div>
+                        </a>
+
+                        <!-- Soft Skills Block -->
+                        <div
+                            class="roadmap-card bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-xl p-6 flex flex-col justify-center">
+                            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-start gap-2">
+                                <i class="fa-solid fa-users-rays text-brand-secondary mt-1"></i>
+                                <span class="leading-tight">Soft Skills & Lean</span>
+                            </h3>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex items-start gap-2"><span class="text-brand-secondary">•</span>
+                                    Бережливое производство (5S)</li>
+                                <li class="flex items-start gap-2"><span class="text-brand-secondary">•</span>
+                                    Техдокументация (EN/RU)</li>
+                                <li class="flex items-start gap-2"><span class="text-brand-secondary">•</span> Культура
+                                    безопасности</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция 1: ПОЛЕВОЙ УРОВЕНЬ -->
+                <div class="relative metro-line pl-10 sm:pl-12">
+                    <div class="absolute left-0 sm:left-4 flex items-center gap-3 mb-6 top-0">
+                        <span
+                            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 border-2 border-blue-50 text-brand-primary font-bold text-sm bg-white">01</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-900 sm:hidden block pt-1">Полевой уровень
+                        </h3>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-3 mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Полевой уровень</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-10 sm:pt-0">
+                        <!-- Card: Охрана Труда -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-secondary cursor-pointer"
+                            onclick="selectInterest('Safety')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-helmet-safety text-lg"></i>
+                                </div>
+                                <span
+                                    class="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">TOP
+                                    🔥</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-brand-primary">Специалист
+                                по ОТ</h3>
+                            <div class="mb-3"><span
+                                    class="inline-flex items-center text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">🛡️
+                                    Техносферная безопасность</span></div>
+                            <p class="text-sm text-slate-500 line-clamp-2">Инструктажи, пожарная безопасность, работы на
+                                высоте.</p>
+                        </div>
+
+                        <!-- Card: Электрик -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-secondary cursor-pointer"
+                            onclick="selectInterest('Electrician')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-bolt text-lg"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-1 group-hover:text-brand-primary">Пром.
+                                электрик</h3>
+                            <div class="mb-3"><span
+                                    class="inline-flex items-center text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">⚡
+                                    Допуск до 1000В</span></div>
+                            <p class="text-sm text-slate-500 line-clamp-2">ПУЭ, монтаж щитов, двигатели. <span
+                                    class="text-brand-secondary font-bold">→ Путь в КИПиА</span></p>
+                        </div>
+
+                        <!-- Card: Мастер -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-brand-secondary cursor-pointer"
+                            onclick="selectInterest('Master')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-brand-primary group-hover:bg-brand-primary group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-user-tie text-lg"></i>
+                                </div>
+                                <span
+                                    class="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">MANAGEMENT</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-brand-primary">Мастер цеха
+                            </h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">Управление сменой, наряды, табелирование.
+                                Переход в руководство.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция 2: УРОВЕНЬ УПРАВЛЕНИЯ -->
+                <div class="relative metro-line pl-10 sm:pl-12">
+                    <div class="absolute left-0 sm:left-4 flex items-center gap-3 mb-6 top-0">
+                        <span
+                            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 border-2 border-emerald-50 text-emerald-700 font-bold text-sm bg-white">02</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-900 sm:hidden block pt-1">АСУ ТП</h3>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-3 mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">Уровень управления (АСУ)</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-10 sm:pt-0">
+                        <!-- Card: КИПиА -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-emerald-500 cursor-pointer"
+                            onclick="selectInterest('KIP')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-gauge-high text-lg"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600">Инженер КИПиА
+                            </h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">Сигналы 4-20 мА, датчики, метрология и чтение
+                                P&ID схем.</p>
+                        </div>
+
+                        <!-- Card: ПЛК -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-emerald-500 cursor-pointer"
+                            onclick="selectInterest('PLC')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-microchip text-lg"></i>
+                                </div>
+                                <span
+                                    class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">CORE</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600">Программист
+                                ПЛК</h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">CoDeSys, TIA Portal, языки МЭК (LAD, ST).
+                                Логика и ПНР.</p>
+                        </div>
+
+                        <!-- Card: Робототехник -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-emerald-500 cursor-pointer"
+                            onclick="selectInterest('Robotics')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-robot text-lg"></i>
+                                </div>
+                                <span
+                                    class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-600/20">ELITE</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-emerald-600">Робототехник
+                            </h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">KUKA, Fanuc. Кинематика, траектории и
+                                юстировка.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция 3: IT -->
+                <div class="relative metro-line last-item pl-10 sm:pl-12">
+                    <div class="absolute left-0 sm:left-4 flex items-center gap-3 mb-6 top-0">
+                        <span
+                            class="relative z-10 flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 border-2 border-amber-50 text-amber-700 font-bold text-sm bg-white">03</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-slate-900 sm:hidden block pt-1">IT Уровень</h3>
+                    </div>
+                    <div class="hidden sm:flex items-center gap-3 mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900">IT и Верхний уровень</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-10 sm:pt-0">
+                        <!-- Card: Архитектор MES -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-amber-500 cursor-pointer"
+                            onclick="selectInterest('MES')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-server text-lg"></i>
+                                </div>
+                                <span
+                                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">TOP</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-amber-600">Архитектор MES
+                                / 1С</h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">Цифровизация цеха: маркировка,
+                                прослеживаемость, интеграция.</p>
+                        </div>
+
+                        <!-- Card: Security -->
+                        <div class="roadmap-card group flex flex-col bg-white border border-slate-200 rounded-xl p-6 hover:border-amber-500 cursor-pointer"
+                            onclick="selectInterest('Security')">
+                            <div class="flex justify-between items-start mb-4">
+                                <div
+                                    class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                                    <i class="fa-solid fa-shield-cat text-lg"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 group-hover:text-amber-600">ИБ в АСУ ТП
+                            </h3>
+                            <p class="text-sm text-slate-500 line-clamp-2">Защита пром. контура (КИИ), анализ
+                                уязвимостей.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 md:mt-16 text-center">
+                <button onclick="scrollToForm()"
+                    class="w-full md:w-auto bg-slate-900 hover:bg-slate-800 text-white font-semibold px-8 py-4 rounded-md transition shadow-lg transform active:scale-95 md:hover:scale-105">
+                    Получить доступ к базе знаний <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section (Mobile Optimized Padding) -->
+    <section id="problem" class="py-16 md:py-20 bg-slate-50 border-t border-slate-200">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Зачем это бизнесу?</h2>
+                <p class="text-slate-500 mt-4 max-w-2xl mx-auto text-sm md:text-base">Excel не спасает, когда встает
+                    линия из-за ошибки в контроллере.</p>
+            </div>
+
+            <div
+                class="grid md:grid-cols-2 gap-px bg-slate-200 border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                <!-- Left: Current State -->
+                <!-- Reduced padding from p-10 to p-6 md:p-10 for mobile friendliness -->
+                <div class="bg-white p-6 md:p-10">
+                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center">
+                        <span
+                            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mr-3 text-slate-500"><i
+                                class="fa-solid fa-triangle-exclamation"></i></span>
+                        Риски
+                    </h3>
+                    <ul class="space-y-6">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-xmark text-red-500 mt-1 mr-4 flex-shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-700 text-sm">"Bus Factor" = 1</strong>
+                                <span class="text-slate-500 text-sm">Только Петрович знает, как перезапустить шкаф. Если
+                                    он заболел — простой.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-xmark text-red-500 mt-1 mr-4 flex-shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-700 text-sm">Штрафы Ростехнадзора</strong>
+                                <span class="text-slate-500 text-sm">Просроченная аттестация по промбезу — это штрафы до
+                                    500 тыс. руб.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right: Future State -->
+                <div class="bg-white p-6 md:p-10">
+                    <h3 class="text-lg font-bold text-brand-primary mb-6 flex items-center">
+                        <span
+                            class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-brand-primary"><i
+                                class="fa-solid fa-check"></i></span>
+                        Результат
+                    </h3>
+                    <ul class="space-y-6">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-emerald-500 mt-1 mr-4 flex-shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-900 text-sm">Прозрачная матрица</strong>
+                                <span class="text-slate-600 text-sm">Видно, кто умеет работать с Simatic S7, кто с Owen,
+                                    а кто только крутит гайки.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-emerald-500 mt-1 mr-4 flex-shrink-0"></i>
+                            <div>
+                                <strong class="block text-slate-900 text-sm">Автоматический Комплаенс</strong>
+                                <span class="text-slate-600 text-sm">Уведомления за 30 дней до истечения групп по
+                                    электробезопасности.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role Switcher (Audience) -->
+    <section id="audience" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6 max-w-5xl">
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-slate-900 tracking-tight">Единый
+                язык для производства и офиса</h2>
+
+            <div class="border border-slate-200 rounded-lg overflow-hidden">
+                <!-- Tab Headers (Scrollable on mobile) -->
+                <div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto no-scrollbar">
+                    <button onclick="switchTab('worker')" id="tab-worker"
+                        class="flex-none min-w-[160px] md:flex-1 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-primary bg-white transition focus:outline-none whitespace-nowrap px-4">
+                        Инженер АСУ ТП
+                    </button>
+                    <button onclick="switchTab('master')" id="tab-master"
+                        class="flex-none min-w-[160px] md:flex-1 py-4 text-sm font-semibold text-slate-500 hover:text-slate-800 transition focus:outline-none border-b-2 border-transparent whitespace-nowrap px-4">
+                        Гл. Инженер
+                    </button>
+                    <button onclick="switchTab('hr')" id="tab-hr"
+                        class="flex-none min-w-[160px] md:flex-1 py-4 text-sm font-semibold text-slate-500 hover:text-slate-800 transition focus:outline-none border-b-2 border-transparent whitespace-nowrap px-4">
+                        HR Завода
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6 md:p-10 bg-white min-h-[250px] flex items-center">
+                    <!-- Worker Content -->
+                    <div id="content-worker" class="animate-fade-in block w-full">
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-slate-900 mb-3">Как повысить свой доход?</h3>
+                                <p class="text-slate-600 mb-6 text-sm">Система строит персональный трек: "Изучи TIA
+                                    Portal → Сдай экзамен → Получи +15% к окладу".</p>
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-sm text-slate-700"><i
+                                            class="fa-solid fa-check text-brand-primary mr-3 w-4"></i> База знаний по
+                                        оборудованию</li>
+                                    <li class="flex items-center text-sm text-slate-700"><i
+                                            class="fa-solid fa-check text-brand-primary mr-3 w-4"></i> Напоминания о
+                                        продлении "корочек"</li>
+                                </ul>
+                            </div>
+                            <div
+                                class="hidden md:block w-1/3 bg-slate-50 p-4 rounded border border-slate-100 text-center">
+                                <i class="fa-solid fa-laptop-code text-4xl text-slate-300 mb-3"></i>
+                                <div class="text-xs text-slate-400 font-medium">Кабинет инженера</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Master Content -->
+                    <div id="content-master" class="hidden animate-fade-in w-full">
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-slate-900 mb-3">Техническая готовность смены</h3>
+                                <p class="text-slate-600 mb-6 text-sm">Мгновенный ответ на вопрос: "У кого в ночной
+                                    смене есть допуск к работам на высоте и знание фасовочного автомата?"</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HR Content -->
+                    <div id="content-hr" class="hidden animate-fade-in w-full">
+                        <div class="flex flex-col md:flex-row gap-8 items-start">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-slate-900 mb-3">Снижение "текучки"</h3>
+                                <p class="text-slate-600 mb-6 text-sm">Удержание специалистов через прозрачные
+                                    перспективы роста. Автоматизация отчетности для аудитов.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA / Form Section -->
+    <section id="contact" class="py-16 md:py-24 bg-brand-dark relative text-white">
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-6 tracking-tight">Начните строить карту компетенций
+                    </h2>
+                    <p class="text-slate-400 mb-8 leading-relaxed text-sm md:text-base">
+                        Оставьте заявку. Если вы инженер — мы пришлем доступ к демо. Если руководитель — обсудим
+                        пилотное внедрение.
+                    </p>
+
+                    <div class="flex items-center space-x-8 text-sm text-slate-400 border-t border-slate-800 pt-8">
+                        <div>
+                            <div class="text-xl md:text-2xl font-bold text-white mb-1">GOST</div>
+                            <div>И ЕТКС РФ</div>
+                        </div>
+                        <div>
+                            <div class="text-xl md:text-2xl font-bold text-white mb-1">SaaS</div>
+                            <div>On-Premise</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-md shadow-2xl p-6 md:p-8 text-slate-800">
+                    <form id="mainForm" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Имя</label>
+                                <input type="text" name="name" required
+                                    class="w-full px-4 py-3 rounded border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition text-sm bg-slate-50"
+                                    placeholder="Алексей">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Телефон</label>
+                                <input type="tel" name="phone"
+                                    class="w-full px-4 py-3 rounded border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition text-sm bg-slate-50"
+                                    placeholder="+7 (999) 000-00-00">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Email</label>
+                            <input type="email" name="email" required
+                                class="w-full px-4 py-3 rounded border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition text-sm bg-slate-50"
+                                placeholder="alex@company.ru">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Я хочу...</label>
+                            <select name="role"
+                                class="w-full px-4 py-3 rounded border border-slate-300 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary outline-none transition text-sm bg-slate-50">
+                                <option value="engineer">Получить карту профессий (Инженер)</option>
+                                <option value="manager">Внедрить на заводе (Руководитель)</option>
+                                <option value="hr">Подобрать персонал (HR)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="submitBtn"
+                            class="w-full bg-brand-primary hover:bg-blue-800 text-white font-bold py-3.5 rounded transition shadow-md mt-2">
+                            Получить доступ
+                        </button>
+                    </form>
+
+                    <div id="successMessage"
+                        class="hidden mt-4 p-4 bg-emerald-50 text-emerald-700 text-sm rounded border border-emerald-200 text-center">
+                        <i class="fa-solid fa-check-circle mr-2"></i> Данные отправлены. Мы свяжемся с вами в течение
+                        часа.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white text-slate-500 py-12 border-t border-slate-200">
+        <div
+            class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+            <div class="mb-6 md:mb-0">
+                <span class="text-brand-primary font-bold text-lg">IndustrialPROFI</span>
+                <p class="text-xs mt-2 text-slate-400">Цифровизация промышленных компетенций.</p>
+            </div>
+            <div
+                class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-8 text-xs font-medium uppercase tracking-wider">
+                <a href="#" class="hover:text-brand-primary transition">О системе</a>
+                <a href="#" class="hover:text-brand-primary transition">Контакты</a>
+            </div>
+            <div class="text-xs text-slate-400 mt-6 md:mt-0">
+                © 2026 IndustrialPROFI. Россия/СНГ.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // --- Mobile Menu Toggle ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        // --- 1. Tab Switching Logic ---
+        function switchTab(role) {
+            // Reset Styles
+            ['worker', 'master', 'hr'].forEach(r => {
+                document.getElementById(`tab-${r}`).className = "flex-none min-w-[160px] md:flex-1 py-4 text-sm font-semibold text-slate-500 hover:text-slate-800 transition focus:outline-none border-b-2 border-transparent whitespace-nowrap px-4";
+                document.getElementById(`content-${r}`).classList.add('hidden');
+            });
+
+            // Set Active Style
+            document.getElementById(`tab-${role}`).className = "flex-none min-w-[160px] md:flex-1 py-4 text-sm font-semibold text-brand-primary border-b-2 border-brand-primary bg-white transition focus:outline-none whitespace-nowrap px-4";
+            document.getElementById(`content-${role}`).classList.remove('hidden');
+        }
+
+        // --- 2. Interest Selection Logic ---
+        function selectInterest(interestName) {
+            const select = document.querySelector('select[name="role"]');
+            select.value = 'engineer';
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToForm() {
+            document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- 3. Form Handling (Google Sheets) ---
+        const GOOGLE_SCRIPT_URL = ''; // Вставьте ваш URL
+
+        const form = document.getElementById('mainForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Отправка...';
+
+            const formData = new FormData(form);
+
+            if (!GOOGLE_SCRIPT_URL) {
+                // DEMO MODE
+                setTimeout(() => {
+                    form.style.display = 'none';
+                    successMessage.classList.remove('hidden');
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }, 1000);
+                return;
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    form.style.display = 'none';
+                    successMessage.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert('Ошибка сервера.');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+        });
+    </script>
+</body>
+
+</html>
